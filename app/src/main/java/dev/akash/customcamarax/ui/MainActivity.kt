@@ -145,8 +145,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun retakePicture() {
-        binding.imagePreviewLayout.root.visibilityGone()
         binding.camaraView.root.visibilityVisible()
+        binding.imagePreviewLayout.root.visibilityGone()
+
         startCamara()
     }
 
