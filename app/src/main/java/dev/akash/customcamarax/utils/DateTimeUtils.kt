@@ -1,4 +1,4 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.utils
 
 import java.text.SimpleDateFormat
 import java.util.*

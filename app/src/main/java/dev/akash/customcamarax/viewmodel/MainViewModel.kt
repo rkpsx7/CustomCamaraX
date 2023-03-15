@@ -1,17 +1,19 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.viewmodel
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import dev.akash.customcamarax.repo.MainRepo
+import dev.akash.customcamarax.utils.Constants
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor(
+    val repo: MainRepo
+) : ViewModel() {
 
     fun uploadImageToFirebase(
         imageForUpload: File?,
@@ -23,9 +25,9 @@ class MainViewModel @Inject constructor() : ViewModel() {
         ) {
         viewModelScope.launch {
             Uri.fromFile(imageForUpload)?.let { uri ->
-                val storage = Firebase.storage.reference
-                val imgRef = storage.child("${Constants.BASE_IMAGE_FOLDER_NAME}/$fileName")
-                imgRef.putFile(uri)
+                val path = "${Constants.BASE_IMAGE_FOLDER_NAME}/$fileName"
+
+                repo.uploadImage(path, uri)
                     .addOnSuccessListener {
                         onSuccess.invoke()
                     }
@@ -39,10 +41,5 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
             }
         }
-    }
-
-
-    private fun getCompleteFilePath(fileName: String?): String {
-        return "CamaraImages/$fileName"
     }
 }

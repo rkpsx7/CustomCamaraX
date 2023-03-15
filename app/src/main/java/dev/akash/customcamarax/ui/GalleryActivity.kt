@@ -1,4 +1,4 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,7 +6,11 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import dev.akash.customcamarax.*
 import dev.akash.customcamarax.databinding.ActivityGalleryBinding
+import dev.akash.customcamarax.utils.visibilityGone
+import dev.akash.customcamarax.viewmodel.GalleryViewModel
+import dev.akash.customcamarax.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
 class GalleryActivity : AppCompatActivity() {

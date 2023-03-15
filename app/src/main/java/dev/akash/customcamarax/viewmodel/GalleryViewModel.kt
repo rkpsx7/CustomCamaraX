@@ -1,16 +1,17 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
+import dev.akash.customcamarax.repo.GalleryRepo
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.asDeferred
 import javax.inject.Inject
 
-class GalleryViewModel @Inject constructor() : ViewModel() {
+class GalleryViewModel @Inject constructor(
+    val repo: GalleryRepo
+) : ViewModel() {
 
     private val _imageUrlList = MutableLiveData<List<String>>()
     val imageUrlList: LiveData<List<String>>
@@ -18,12 +19,14 @@ class GalleryViewModel @Inject constructor() : ViewModel() {
 
     fun getAllImages() {
         viewModelScope.launch {
-            val storageRef = Firebase.storage.reference.child(Constants.BASE_IMAGE_FOLDER_NAME)
+            val res = repo.getImageItemsFromCloud()
             val urlList = ArrayList<String>()
-            val query = (storageRef.listAll()).asDeferred().await()
-            query.items.forEach {
-                val downloadUrl = (it.downloadUrl).asDeferred().await()
-                urlList.add(downloadUrl.toString())
+
+            res?.let { response ->
+                response.items.forEach {
+                    val downloadUrl = (it.downloadUrl).asDeferred().await()
+                    urlList.add(downloadUrl.toString())
+                }
             }
 
             _imageUrlList.postValue(urlList)

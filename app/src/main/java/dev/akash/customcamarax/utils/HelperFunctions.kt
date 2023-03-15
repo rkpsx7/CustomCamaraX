@@ -1,4 +1,4 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.camera.core.ImageProxy
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import dev.akash.customcamarax.R
 import java.io.File
 
 fun AppCompatImageView.loadImage(url:String?){
@@ -41,4 +42,16 @@ fun View.visibilityGone(){
 
 fun View.visibilityVisible(){
     this.visibility = View.VISIBLE
+}
+
+
+/**
+ * onCLickListener fn to prevent multiple miss-touch
+ */
+fun View.safeClick(action: () -> Unit) {
+    this.setOnClickListener(object : SafeClickListener() {
+        override fun onSafeClick(v: View?) {
+            action.invoke()
+        }
+    })
 }

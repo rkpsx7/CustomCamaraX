@@ -1,4 +1,4 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.ui
 
 import android.app.Dialog
 import android.content.Intent
@@ -9,11 +9,8 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.Window
-import android.view.WindowManager
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -24,9 +21,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
-import dev.akash.customcamarax.DateTimeUtils.getDateForImageName
+import dev.akash.customcamarax.*
+import dev.akash.customcamarax.utils.DateTimeUtils.getDateForImageName
+import dev.akash.customcamarax.R
 import dev.akash.customcamarax.databinding.ActivityMainBinding
 import dev.akash.customcamarax.databinding.LoadingLayoutBinding
+import dev.akash.customcamarax.utils.convertImageProxyToBitmap
+import dev.akash.customcamarax.utils.safeClick
+import dev.akash.customcamarax.utils.visibilityGone
+import dev.akash.customcamarax.utils.visibilityVisible
+import dev.akash.customcamarax.viewmodel.MainViewModel
+import dev.akash.customcamarax.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setButtonActions() {
         binding.camaraView.apply {
-            btnClickPic.setOnClickListener {
+            btnClickPic.safeClick {
                 capture()
             }
 
@@ -131,11 +136,13 @@ class MainActivity : AppCompatActivity() {
             binding.imagePreviewLayout.apply {
                 root.visibilityVisible()
                 ivImagePrev.setImageBitmap(bitmap)
-                btnRetake.setOnClickListener { retakePicture() }
-                btnSavePic.setOnClickListener {
+                btnRetake.safeClick { retakePicture() }
+                btnSavePic.safeClick {
                     val isSaved = saveImage(bitmap)
                     if (isSaved)
                         launchProgressDialog(timeStamp)
+                    else
+                        showToast("Some Error Occurred. Please try again")
                 }
             }
         }
@@ -170,17 +177,18 @@ class MainActivity : AppCompatActivity() {
                 fileName,
                 onSuccess = {
                     dialog.cancel()
-                    Toast.makeText(this@MainActivity, "Upload Successful", Toast.LENGTH_SHORT)
-                        .show()
+                    showToast("Upload Successful")
                     retakePicture()
                 },
                 onFailure = {
                     dialog.cancel()
-                    Toast.makeText(this@MainActivity, "Failed to upload!", Toast.LENGTH_LONG).show()
+                    showToast("Failed to upload!")
                 },
                 onProgressUpdate = {
-                    binding.tvProgress.text = "${it.toInt()}%"
-                    binding.progressBar.progress = it.toInt()
+                    binding.tvProgress.text = "${it.toInt()} %"
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                        binding.progressBar.setProgress(it.toInt(),true)
+                    else binding.progressBar.progress = it.toInt()
                 }
             )
         }
@@ -250,7 +258,8 @@ class MainActivity : AppCompatActivity() {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initialise()
             } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                showToast("camera permission denied")
+                finish()
             }
         }
     }
@@ -274,6 +283,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         startCamera()
         super.onResume()
+    }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
 }

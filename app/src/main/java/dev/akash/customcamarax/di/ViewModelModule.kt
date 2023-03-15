@@ -5,8 +5,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
-import dev.akash.customcamarax.GalleryViewModel
-import dev.akash.customcamarax.MainViewModel
+import dev.akash.customcamarax.viewmodel.GalleryViewModel
+import dev.akash.customcamarax.viewmodel.MainViewModel
 
 @Module
 abstract class ViewModelModule {

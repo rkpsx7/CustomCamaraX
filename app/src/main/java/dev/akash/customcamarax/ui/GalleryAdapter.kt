@@ -1,9 +1,10 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.akash.customcamarax.databinding.GalleryItemBinding
+import dev.akash.customcamarax.utils.loadImage
 
 class GalleryAdapter : RecyclerView.Adapter<GalleryAdapter.GalleryHV>() {
 

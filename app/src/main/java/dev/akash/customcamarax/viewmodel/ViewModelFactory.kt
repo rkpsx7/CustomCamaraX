@@ -1,4 +1,4 @@
-package dev.akash.customcamarax
+package dev.akash.customcamarax.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
