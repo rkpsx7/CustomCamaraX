@@ -13,7 +13,7 @@ import java.io.File
 fun AppCompatImageView.loadImage(url:String?){
     Glide.with(this.context)
         .load(url)
-        .placeholder(R.drawable.loading_placeholder)
+        .placeholder(R.drawable.ic_gallery)
         .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
         .into(this)
 }
@@ -21,7 +21,7 @@ fun AppCompatImageView.loadImage(url:String?){
 fun AppCompatImageView.loadImage(image: File?){
     Glide.with(this.context)
         .load(image)
-        .placeholder(R.drawable.loading_placeholder)
+        .placeholder(R.drawable.ic_gallery)
         .diskCacheStrategy(DiskCacheStrategy.NONE)
         .into(this)
 }

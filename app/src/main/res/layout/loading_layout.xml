@@ -9,16 +9,15 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:theme="@style/Platform.MaterialComponents.Light"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/app_primary"
         app:cardCornerRadius="@dimen/dp10">
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/dp8">
@@ -29,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/dp16"
                 android:text="@string/saving_image_to_cloud"
-                android:textColor="@color/text_grey"
+                android:textColor="@color/white"
                 android:textSize="@dimen/sp16"
                 android:textStyle="bold" />
 
@@ -38,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="@string/_50"
-                android:textColor="@color/text_grey"
+                android:textColor="@color/white"
                 android:textSize="@dimen/sp16"
                 android:textStyle="bold" />
 
