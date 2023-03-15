@@ -40,15 +40,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: MainViewModel
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var camaraManager: CamaraManager
 
     private val requestCodePermission = 707
-
     private var isInPreviewState = false
-
-    private lateinit var binding: ActivityMainBinding
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,11 +84,11 @@ class MainActivity : AppCompatActivity() {
                 ivImagePrev.setImageBitmap(bitmap)
                 btnRetake.safeClick { retakePicture() }
                 btnSavePic.safeClick {
-                    val isSaved = LocalCacheImageManager.saveImageAsCache(this@MainActivity,bitmap)
+                    val isSaved = LocalCacheImageManager.saveImageAsCache(this@MainActivity, bitmap)
                     if (isSaved)
                         launchUploadDialog(timeStamp)
                     else
-                        showToast("Some Error Occurred. Please try again")
+                        showToast(getString(R.string.error_msg))
                 }
             }
         }
@@ -126,15 +123,18 @@ class MainActivity : AppCompatActivity() {
                 fileName,
                 onSuccess = {
                     dialog.cancel()
-                    showToast("Upload Successful")
+                    showToast(getString(R.string.upload_success_msg))
                     retakePicture()
                 },
                 onFailure = {
                     dialog.cancel()
-                    showToast("Failed to upload!")
+                    showToast(getString(R.string.failed_upload_msg))
                 },
                 onProgressUpdate = {
-                    binding.tvProgress.text = "${it.toInt()} %"
+                    binding.tvProgress.text = buildString {
+                        append(it.toInt())
+                        append(" %")
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                         binding.progressBar.setProgress(it.toInt(), true)
                     else binding.progressBar.progress = it.toInt()
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
             binding.camaraView.camPreview.surfaceProvider,
             animateShutter = { animateShutter() },
             onCaptureClick = { bitmap, timeStamp ->
-                previewImage(bitmap,timeStamp)
+                previewImage(bitmap, timeStamp)
             }
         )
 
@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initialise()
             } else {
-                showToast("camera permission denied")
+                showToast(getString(R.string.cam_permission_denied))
                 finish()
             }
         }
@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
     }
 
-    private fun startCamara(){
+    private fun startCamara() {
         isInPreviewState = false
         camaraManager.runCamera()
     }

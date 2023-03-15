@@ -5,4 +5,9 @@
     <string name="_50">50%</string>
     <string name="images_from_firebase_cloud_storage">Images From Firebase Cloud Storage</string>
     <string name="retake">Retake</string>
+    <string name="cam_permission_denied">camera permission denied</string>
+    <string name="failed_upload_msg">Failed to upload!</string>
+    <string name="upload_success_msg">Upload Successful</string>
+    <string name="error_msg">Some Error Occurred. Please try again</string>
+    <string name="save_image_msg">Please save new pictures to see here</string>
 </resources>

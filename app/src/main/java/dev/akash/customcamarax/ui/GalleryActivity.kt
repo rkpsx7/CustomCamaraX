@@ -21,7 +21,6 @@ class GalleryActivity : AppCompatActivity() {
 
     private var totalImages = 0
 
-
     private val galleryAdapter: GalleryAdapter by lazy {
         GalleryAdapter()
     }
@@ -44,10 +43,14 @@ class GalleryActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 galleryAdapter.imagesList = it
                 totalImages = it.size
-                binding.tvImageCounter.text = "1/$totalImages"
+                binding.tvImageCounter.text = buildString {
+                    append("1/")
+                    append(totalImages)
+                }
                 galleryAdapter.notifyDataSetChanged()
             } else {
-                Toast.makeText(this, "Please save new pictures to see here", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.save_image_msg), Toast.LENGTH_LONG)
+                    .show()
                 finish()
             }
         }
@@ -58,7 +61,11 @@ class GalleryActivity : AppCompatActivity() {
             adapter = galleryAdapter
             registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
-                    binding.tvImageCounter.text = "${position + 1}/$totalImages"
+                    binding.tvImageCounter.text = buildString {
+                        append(position + 1)
+                        append("/")
+                        append(totalImages)
+                    }
                 }
             })
         }
