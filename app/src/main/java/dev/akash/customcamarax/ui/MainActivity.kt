@@ -12,21 +12,18 @@ import android.view.LayoutInflater
 import android.view.Window
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.common.util.concurrent.ListenableFuture
 import dev.akash.customcamarax.*
 import dev.akash.customcamarax.utils.DateTimeUtils.getDateForImageName
 import dev.akash.customcamarax.R
+import dev.akash.customcamarax.camara.CamaraManager
 import dev.akash.customcamarax.databinding.ActivityMainBinding
 import dev.akash.customcamarax.databinding.LoadingLayoutBinding
-import dev.akash.customcamarax.utils.convertImageProxyToBitmap
+import dev.akash.customcamarax.utils.LocalCacheImageManager
 import dev.akash.customcamarax.utils.safeClick
 import dev.akash.customcamarax.utils.visibilityGone
 import dev.akash.customcamarax.utils.visibilityVisible
@@ -35,11 +32,6 @@ import dev.akash.customcamarax.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
 
@@ -49,12 +41,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: MainViewModel
 
-    private val requestCodePermission = 707
-    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
-    private lateinit var cameraSelector: CameraSelector
+    private lateinit var camaraManager: CamaraManager
 
-    private var imageCapture: ImageCapture? = null
-    private lateinit var imgExecutor: ExecutorService
+    private val requestCodePermission = 707
 
     private var isInPreviewState = false
 
@@ -75,11 +64,11 @@ class MainActivity : AppCompatActivity() {
     private fun setButtonActions() {
         binding.camaraView.apply {
             btnClickPic.safeClick {
-                capture()
+                camaraManager.capture()
             }
 
             btnSwitchCam.setOnClickListener {
-                switchCam()
+                camaraManager.switchCam()
             }
 
             btnGallery.setOnClickListener {
@@ -87,46 +76,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    }
-
-    private fun startCamera() {
-        isInPreviewState = false
-        cameraProviderFuture.addListener({
-            val camaraProvider = cameraProviderFuture.get()
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .setJpegQuality(100)
-                .build()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(binding.camaraView.camPreview.surfaceProvider)
-            }
-
-            try {
-                camaraProvider.unbindAll()
-                camaraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-            } catch (ignore: Exception) {
-
-            }
-        }, ContextCompat.getMainExecutor(this))
-    }
-
-    private fun capture() {
-        imageCapture?.let {
-            val timeStamp = System.currentTimeMillis()
-
-            it.takePicture(
-                imgExecutor,
-                object : ImageCapture.OnImageCapturedCallback() {
-                    override fun onCaptureSuccess(image: ImageProxy) {
-                        animateShutter()
-                        val bitmap = image.convertImageProxyToBitmap()
-                        previewImage(bitmap, timeStamp)
-                        image.close()
-                    }
-                }
-            )
-        }
     }
 
     private fun previewImage(bitmap: Bitmap, timeStamp: Long) {
@@ -138,9 +87,9 @@ class MainActivity : AppCompatActivity() {
                 ivImagePrev.setImageBitmap(bitmap)
                 btnRetake.safeClick { retakePicture() }
                 btnSavePic.safeClick {
-                    val isSaved = saveImage(bitmap)
+                    val isSaved = LocalCacheImageManager.saveImageAsCache(this@MainActivity,bitmap)
                     if (isSaved)
-                        launchProgressDialog(timeStamp)
+                        launchUploadDialog(timeStamp)
                     else
                         showToast("Some Error Occurred. Please try again")
                 }
@@ -159,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun launchProgressDialog(timeStamp: Long) {
+    private fun launchUploadDialog(timeStamp: Long) {
         val binding = LoadingLayoutBinding.inflate(LayoutInflater.from(this))
         val dialog = Dialog(this, R.style.Theme_Dialog).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -173,7 +122,7 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.uploadImageToFirebase(
-                getImageForUpload(),
+                LocalCacheImageManager.getImageForUpload(this@MainActivity),
                 fileName,
                 onSuccess = {
                     dialog.cancel()
@@ -187,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                 onProgressUpdate = {
                     binding.tvProgress.text = "${it.toInt()} %"
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                        binding.progressBar.setProgress(it.toInt(),true)
+                        binding.progressBar.setProgress(it.toInt(), true)
                     else binding.progressBar.progress = it.toInt()
                 }
             )
@@ -195,42 +144,23 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun saveImage(bitmap: Bitmap): Boolean {
-        return try {
-            openFileOutput("Jukshio_IMG.jpg", MODE_PRIVATE).use { stream ->
-                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 95, stream)) {
-                    throw IOException("Couldn't save bitmap.")
-                }
-                true
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    private suspend fun getImageForUpload(): File? {
-        return withContext(Dispatchers.IO) {
-            val files = filesDir.listFiles()
-            files?.find {
-                it.canRead() && it.isFile && it.name.equals("Jukshio_IMG.jpg")
-            }
-        }
-    }
-
     private fun retakePicture() {
         binding.imagePreviewLayout.root.visibilityGone()
         binding.camaraView.root.visibilityVisible()
-        startCamera()
+        startCamara()
     }
 
     private fun initialise() {
-        cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        camaraManager = CamaraManager(
+            this,
+            binding.camaraView.camPreview.surfaceProvider,
+            animateShutter = { animateShutter() },
+            onCaptureClick = { bitmap, timeStamp ->
+                previewImage(bitmap,timeStamp)
+            }
+        )
 
-        imgExecutor = Executors.newSingleThreadExecutor()
-
-        startCamera()
+        startCamara()
     }
 
     private fun checkCamaraPermission() {
@@ -264,15 +194,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchCam() {
-        if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
-            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-        else
-            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-        startCamera() //restarting camara
-    }
-
     override fun onBackPressed() {
         if (isInPreviewState)
             retakePicture()
@@ -281,8 +202,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        startCamera()
+        if (::camaraManager.isInitialized)
+            startCamara()
         super.onResume()
+    }
+
+    private fun startCamara(){
+        isInPreviewState = false
+        camaraManager.runCamera()
     }
 
     private fun showToast(msg: String) {
