@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "385755934031",
+    "project_id": "customcamarax",
+    "storage_bucket": "customcamarax.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385755934031:android:9d61489398d3f130a9693a",
+        "android_client_info": {
+          "package_name": "dev.akash.customcamarax"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "385755934031-jbqminrm5ftongt9pqnc1g31n798qori.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7FE2x-6gZAMTJKAwsXn8CIx_uvi9uuNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "385755934031-jbqminrm5ftongt9pqnc1g31n798qori.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

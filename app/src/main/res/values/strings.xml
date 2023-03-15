@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">CustomCamaraX</string>
+    <string name="save_image">Save Image</string>
+    <string name="saving_image_to_cloud">saving image to cloud...</string>
+    <string name="_50">50%</string>
+    <string name="images_from_firebase_cloud_storage">Images From Firebase Cloud Storage</string>
+    <string name="retake">Retake</string>
 </resources>
