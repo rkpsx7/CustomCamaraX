@@ -1,7 +1,7 @@
 
 # Custom Camara App - Assignment
 
-Custom Camara applicaton built using CamaraX.
+Custom Camara application built using CamaraX.
 
 ## Features Implemented:-
 
