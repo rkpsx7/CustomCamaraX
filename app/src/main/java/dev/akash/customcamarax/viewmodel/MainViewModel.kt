@@ -21,8 +21,7 @@ class MainViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onFailure: () -> Unit,
         onProgressUpdate: (Double) -> Unit,
-
-        ) {
+    ) {
         viewModelScope.launch {
             Uri.fromFile(imageForUpload)?.let { uri ->
                 val path = "${Constants.BASE_IMAGE_FOLDER_NAME}/$fileName"

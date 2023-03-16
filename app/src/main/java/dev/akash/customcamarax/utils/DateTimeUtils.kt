@@ -1,5 +1,6 @@
 package dev.akash.customcamarax.utils
 
+import dev.akash.customcamarax.utils.Constants.DEFAULT_DATE_FORMAT_FOR_IMAGE_NAME
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -7,7 +8,7 @@ object DateTimeUtils {
 
     fun getDateForImageName(
         milliSeconds: Long,
-        dateFormat: String? = "dd-MM-yyyy hh:mm:ss.SSS"
+        dateFormat: String? = DEFAULT_DATE_FORMAT_FOR_IMAGE_NAME
     ): String? {
         val formatter = SimpleDateFormat(dateFormat, Locale.ENGLISH)
 

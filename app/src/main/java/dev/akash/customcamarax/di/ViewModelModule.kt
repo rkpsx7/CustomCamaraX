@@ -21,20 +21,4 @@ abstract class ViewModelModule {
     @IntoMap
     abstract fun galleryViewModel(galleryViewModel: GalleryViewModel): ViewModel
 
-
-//
-//    @Singleton
-//    @Provides
-//    fun providesRetrofit(): Retrofit {
-//        return Retrofit.Builder()
-//            .baseUrl("https://storage.googleapis.com")
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//    }
-//
-//    @Singleton
-//    @Provides
-//    fun providesNewsHomeApi(retrofit: Retrofit): NewsApi {
-//        return retrofit.create(NewsApi::class.java)
-//    }
 }

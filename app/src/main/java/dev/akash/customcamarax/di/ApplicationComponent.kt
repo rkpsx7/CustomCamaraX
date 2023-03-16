@@ -2,8 +2,8 @@ package dev.akash.customcamarax.di
 
 import androidx.lifecycle.ViewModel
 import dagger.Component
-import dev.akash.customcamarax.ui.GalleryActivity
-import dev.akash.customcamarax.ui.MainActivity
+import dev.akash.customcamarax.ui.activity.GalleryActivity
+import dev.akash.customcamarax.ui.activity.MainActivity
 import javax.inject.Singleton
 
 @Singleton

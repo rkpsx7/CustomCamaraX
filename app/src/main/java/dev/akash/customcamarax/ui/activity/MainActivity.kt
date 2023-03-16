@@ -1,4 +1,4 @@
-package dev.akash.customcamarax.ui
+package dev.akash.customcamarax.ui.activity
 
 import android.app.Dialog
 import android.content.Intent
