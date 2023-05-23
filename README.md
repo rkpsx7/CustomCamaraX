@@ -1,5 +1,5 @@
 
-# Custom Camara App - Assignment
+# Custom Camara App
 
 Custom Camara application built using CamaraX.
 
